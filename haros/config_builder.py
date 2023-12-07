@@ -418,6 +418,8 @@ class ConfigurationBuilder(LoggingObject):
     def _analyse_tree(self, tree, scope, sub):
         for tag in tree.children:
             if tag.tag == "error":
+                # wshuo:
+                print("config_builder.py _analyse_tree: error tag")
                 self.errors.append(tag.text)
                 continue
             try:
@@ -426,8 +428,19 @@ class ConfigurationBuilder(LoggingObject):
                 if condition is False:
                     continue
                 handler = getattr(self, "_" + tag.tag + "_tag")
+                # wshuo:
+                print("_analyse_tree: before handler")
+                # wshuo: WARNING:root:Configuration teleop: cannot resolve: ('env', 'TURTLEBOT3_MODEL')     
+                # WARNING:root:Configuration teleop: undeclared arg: model
+                print("tag", tag)
+                print("condition", condition)
+                print("scope", scope)
+                print("sub", sub)
                 handler(tag, condition, scope, sub)
+                print("_analyse_tree: after handler")
             except (ConfigurationError, SubstitutionError) as e:
+                # wshuo:
+                print("config_builder.py _analyse_tree: except substitution error", e.value)
                 self.errors.append(e.value)
 
     def _node_tag(self, tag, condition, scope, sub):

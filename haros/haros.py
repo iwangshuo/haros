@@ -173,6 +173,7 @@ class HarosLauncher(object):
         self.viz_dir = self.VIZ_DIR
 
     def launch(self, argv=None):
+        # wshuo: parse arguments and get command
         args = self.parse_arguments(argv)
         command = getattr(args, "command", None)
         if command is None:
@@ -191,6 +192,7 @@ class HarosLauncher(object):
             if args.cwd:
                 os.chdir(args.cwd)
             self.log.info("Executing selected command.")
+            # wshuo: run command
             return command(args)
         except KeyError as err:
             if str(err) == "ROS_WORKSPACE":
@@ -216,6 +218,7 @@ class HarosLauncher(object):
     def command_full(self, args):
         return self.command_analyse(args) and self.command_viz(args)
 
+    # wshuo: create haros analyse runner and run
     def command_analyse(self, args):
         if not self.initialised:
             self.initialised = self._init_haros_dir(overwrite=False)
@@ -323,6 +326,7 @@ class HarosLauncher(object):
                             help = "output only those file(s) required to view the report")
         parser.set_defaults(command = self.command_init)
 
+    # wshuo: parse command with "full" tag
     def _full_parser(self, parser):
         parser.add_argument("-r", "--use-repos", action = "store_true",
                             help = "use repository information")
@@ -356,6 +360,7 @@ class HarosLauncher(object):
                             help="do not rely on hard-coded nodes")
         parser.add_argument("--headless", action = "store_true",
                             help = "start server without web browser")
+        # wshuo: set command as command_full
         parser.set_defaults(command = self.command_full)
 
     def _analyse_parser(self, parser):
@@ -651,12 +656,14 @@ class HarosAnalyseRunner(HarosCommonExporter):
         except IOError:
             self.settings = HarosSettings(workspace=self.workspace)
 
+    # wshuo: load setting for project extractor
     def run(self):
         if self.settings is None:
             self._load_settings()
         self.database = HarosDatabase()
         self._setup_lazy_node_parser()
         plugins, rules, metrics = self._load_definitions_and_plugins()
+        # wshuo: load node cache from cache json file
         node_cache = {}
         if self.parse_nodes and self.use_cache:
             parse_cache = os.path.join(self.root, "parse_cache.json")
@@ -668,14 +675,22 @@ class HarosAnalyseRunner(HarosCommonExporter):
         configs, nodes, env = self._extract_metamodel(node_cache, rules)
         self.current_dir = os.path.join(self.io_projects_dir, self.project)
         self._load_history()
+        # wshuo:
+        print("haros.py run: before _extract_configurations")
+
         self._extract_configurations(self.database.project, configs, nodes, env)
+        # wshuo:
+        print("haros.py run: before _make_node_configurations")
         self._make_node_configurations(self.database.project, nodes, env)
         self._parse_hpl_properties()
+        # wshuo:
+        print("haros.py run: before _analyse")
         self._analyse(plugins, rules, metrics)
         self._save_results(node_cache)
         self.database = None
         return True
 
+    # wshuo: creat an instance project extractor, and run index_source
     def _extract_metamodel(self, node_cache, rules):
         print("[HAROS] Reading project and indexing source code...")
         self.log.debug("Project file %s", self.project_file)
@@ -698,14 +713,22 @@ class HarosAnalyseRunner(HarosCommonExporter):
             # NOTE: this updates settings with ignore-line comments
             extractor.index_source(settings = self.settings)
         self.project = extractor.project.name
+        # wshuo:
+        print("_extract_metamodel: after index_source")
         if not extractor.project.packages:
             raise RuntimeError("There are no packages to analyse.")
         self.database.register_project(extractor.project)
+
+        # wshuo:
+        print("_extract_metamodel: before update_analysis_preferences")
+
         self.database.update_analysis_preferences(self.settings)
         rs = self.database.register_rules(extractor.rules, prefix="user:",
             ignored_rules=self.settings.ignored_rules,
             ignored_tags=self.settings.ignored_tags)
         rules.update(rs) # FIXME this is a hammer
+        # wshuo:
+        print("_extract_metamodel: before return")
         return extractor.configurations, extractor.node_specs, env
 
     def _extract_configurations(self, project, configs, nodes, environment):
@@ -736,6 +759,8 @@ class HarosAnalyseRunner(HarosCommonExporter):
                 builder.add_launch(launch)
             cfg = builder.build()
             for msg in builder.errors:
+                # wshuo:
+                print(msg)
                 self.log.warning("Configuration %s: %s", cfg.name, msg)
             for p in hpl.get("properties", empty_list):
                 cfg.hpl_properties.append(p)

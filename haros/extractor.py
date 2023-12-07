@@ -180,8 +180,12 @@ class ProjectExtractor(LoggingObject):
         self._populate_packages_and_dependencies(settings=settings)
         self._update_node_cache()
         self._find_nodes(settings)
+        # wshuo:
+        print("index_source: after _find_nodes")
         self._update_nodes_from_specs()
-
+        # wshuo:
+        print("index_source: after _update_nodes_from_specs")
+        
     def _setup(self):
         try:
             with open(self.index_file, "r") as handle:
@@ -352,8 +356,12 @@ class ProjectExtractor(LoggingObject):
                 extractor.find_nodes(pkg)
 
     def _update_node_cache(self):
+        # wshuo:
+        print("Importing cached Nodes.")
         self.log.debug("Importing cached Nodes.")
         data = [datum for datum in self.node_cache.values()]
+        # wshuo:
+        # print(data)
         self.node_cache = {}
         empty_dict = {}
         empty_list = ()
@@ -1051,6 +1059,7 @@ class NodeExtractor(LoggingObject):
         self.roscpp_extractor = None
         self.rospy_extractor = None
 
+    # register/extract nodes
     def find_nodes(self, pkg):
         self.log.debug("NodeExtractor.find_nodes(%s)", pkg)
         self.package = pkg
@@ -1127,6 +1136,7 @@ class NodeExtractor(LoggingObject):
             if nodelet.name in lib_files:
                 nodelet.source_files = lib_files[nodelet.name]
 
+    # wshuo: add node to this package,
     def _register_nodes(self, executables):
         for target in executables.values():
             node = Node(target.output_name, self.package)
@@ -1149,21 +1159,34 @@ class NodeExtractor(LoggingObject):
                     node.node_name, lang, node.source_files)
 
     def _extract_primitives(self, force_when_cached=False):
+        # wshuo: 
+        print("_extract_primitives start")
         self.roscpp_extractor = RoscppExtractor(self.package, self.workspace)
         self.rospy_extractor = RospyExtractor(self.package, self.workspace)
 
+        # wshuo: iterate nodes in package, for each node, check if cpp or py, use different strategy 
         for i in range(len(self.package.nodes)):
             node = self.package.nodes[i]
+            # wshuo: 
+            print("node name:", node.node_name)
             self.log.debug("Extracting primitives for node %s", node.id)
             if node.source_tree is not None:
                 self.log.debug("Node already has a source tree. Skipped.")
                 continue
-            if (node.node_name in self.node_cache) and not force_when_cached:
-                self.log.debug("Using Node %s from cache.", node.node_name)
-                node = self.node_cache[node.node_name]
-                assert node.package is self.package
-                self.package.nodes[i] = node
-                continue
+            # wshuo:
+            print("flag000")
+            print(node.node_name in self.node_cache and not force_when_cached)
+            # wshuo: annotate this if-statement for forbidding cache
+
+            # if (node.node_name in self.node_cache) and not force_when_cached:
+            #     self.log.debug("Using Node %s from cache.", node.node_name)
+            #     node = self.node_cache[node.node_name]
+            #     assert node.package is self.package
+            #     self.package.nodes[i] = node
+            #     continue
+
+            # wshuo:
+            print("flag001")
             node.source_tree = CodeGlobalScope()
             node.advertise = []
             node.subscribe = []
@@ -1175,8 +1198,12 @@ class NodeExtractor(LoggingObject):
                 self.log.warning("no source files for node " + node.id)
 
             if node.language == "cpp" and CppAstParser is not None:
+                # wshuo:
+                print("cpp")
                 self.roscpp_extractor.extract(node)
             elif node.language == "python":
+                # wshuo:
+                print("python")
                 self.rospy_extractor.extract(node)
             else:
                 self.log.debug("Node written in %s.", node.language)
@@ -2041,11 +2068,13 @@ class RospyExtractor(LoggingObject):
                     self.log.debug(("Python import with 'msg' or 'srv', "
                                     "but unable to process it: ")
                                    + s)
-
+        # wshuo:
+        print("rospy extract: before query")
         # ----- queries after parsing, since global scope is reused -----------
         self._query_comm_primitives(node, parser.global_scope)
         self._query_param_primitives(node, parser.global_scope)
-
+        # wshuo:
+        print("rospy extract: after query")
 
 ###############################################################################
 # Node Hints
