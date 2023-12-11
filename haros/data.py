@@ -517,7 +517,10 @@ class HarosSettings(object):
                  ignored_globs=None):
         self.environment = env or dict(self.DEFAULTS["environment"])
         self.plugin_blacklist = blacklist if not blacklist is None else []
+        print("11111111111111111111111111")
+        # wshuo: in docker, this find_ros_ws is skipped as workspace is not None
         self.workspace = workspace or self.find_ros_workspace()
+        print("33333333333333333333333333")
         self.ignored_tags = (ignored_tags
                 or list(self.DEFAULTS["analysis"]["ignore"]["tags"]))
         self.ignored_rules = (ignored_rules
@@ -553,7 +556,9 @@ class HarosSettings(object):
         elif not env is None:
             raise ValueError("invalid value for environment")
         blacklist = data.get("plugin_blacklist", [])
+        print(ws)
         workspace = ws or data.get("workspace")
+        print(workspace)
         analysis = data.get("analysis", {})
         analysis_ignored = analysis.get("ignore", {})
         ignored_tags = analysis_ignored.get("tags")
@@ -590,6 +595,8 @@ class HarosSettings(object):
             if ws:
                 return ws
         ws = self.environment.get("ROS_WORKSPACE")
+        print(ws)
+        print("0000000000000000000000")
         if ws:
             return ws
         paths = self.environment.get("CMAKE_PREFIX_PATH")

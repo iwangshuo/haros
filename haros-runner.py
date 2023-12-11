@@ -23,4 +23,10 @@
 import sys
 from haros.haros import main
 
+# import oss
+# os.system('source /home/wshuo/haros_ws/devel/setup.bash')
+# os.system('echo $ROS_PACKAGE_PATH')
+# os.system('bash -c /home/wshuo/Documents/haros/demo-wshuo/source.sh')
+# os.system('bash -c /home/wshuo/Documents/haros/demo-wshuo/rospack.sh')
+
 sys.exit(main(source_runner = True))

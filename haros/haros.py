@@ -659,6 +659,7 @@ class HarosAnalyseRunner(HarosCommonExporter):
     # wshuo: load setting for project extractor
     def run(self):
         if self.settings is None:
+            print("222222222222222222")
             self._load_settings()
         self.database = HarosDatabase()
         self._setup_lazy_node_parser()

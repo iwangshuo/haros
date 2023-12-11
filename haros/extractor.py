@@ -1920,7 +1920,8 @@ class RospyExtractor(LoggingObject):
         ##################################
         # Topics
         ##################################
-
+        # wshuo:
+        print("_query_comm_primitives: start")
         publications = (CodeQuery(gs).all_calls
                         .where_name(('Publisher', 'rospy.Publisher'))
                         .get())

@@ -1,0 +1,1 @@
+source /home/wshuo/haros_ws/devel/setup.bash
