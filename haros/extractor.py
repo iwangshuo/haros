@@ -1928,6 +1928,8 @@ class RospyExtractor(LoggingObject):
         subscriptions = (CodeQuery(gs).all_calls
                          .where_name(('Subscriber', 'rospy.Subscriber'))
                          .get())
+        #wshuo:
+        print(len(publications))
         for call in publications:
             self._on_publication(node, call)
         for call in subscriptions:
@@ -2044,6 +2046,7 @@ class RospyExtractor(LoggingObject):
         self.log.debug("Parsing Python files for node %s", node.id)
         self.log.debug("PyAstParser(pythonpath={!r}, workspace={!r})".format(
             self.pythonpath, self.workspace))
+        print(self.pythonpath, self.workspace)
         parser = PyAstParser(pythonpath=self.pythonpath,
                              workspace=self.workspace)
         for sf in node.source_files:
