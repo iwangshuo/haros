@@ -5,7 +5,8 @@ from bonsai.analysis import (
 )
 
 
-pythonpath = ['/home/wshuo/haros_ws/src/turtlebot3/turtlebot3_teleop/nodes/turtlebot3_teleop_key']
+# pythonpath = ['/home/wshuo/haros_ws/src/turtlebot3/turtlebot3_teleop/nodes/turtlebot3_teleop_key']
+pythonpath = ['/home/wshuo/haros_ws/src/sarl_star/sarl_star_ros/scripts/sarl_star_node.py']
 workspace = '/home/wshuo/haros_ws'
 # cmakelists.txt can guide us where the source code is
 # ################################################################################
@@ -22,7 +23,8 @@ workspace = '/home/wshuo/haros_ws'
 parser = PyAstParser(pythonpath=pythonpath,
                         workspace=workspace)
 
-sf_path = '/home/wshuo/haros_ws/src/turtlebot3/turtlebot3_teleop/nodes/turtlebot3_teleop_key'
+# sf_path = '/home/wshuo/haros_ws/src/turtlebot3/turtlebot3_teleop/nodes/turtlebot3_teleop_key'
+sf_path = '/home/wshuo/haros_ws/src/sarl_star/sarl_star_ros/scripts/sarl_star_node.py'
 parse_res = parser.parse(sf_path)
 if parse_res is None:
     print("parse is None")
@@ -47,6 +49,7 @@ subscriptions = (CodeQuery(gs).all_calls
                     .get())
 
 print(len(publications))
+print(len(subscriptions))
 # for call in publications:
 #     self._on_publication(node, call)
 # for call in subscriptions:
